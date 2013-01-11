@@ -13,6 +13,8 @@
   <depend package="rqt_gui_cpp"/>
   <depend package="sensor_msgs"/>
 
+  <rosdep name="libmarble-dev" />
+
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>

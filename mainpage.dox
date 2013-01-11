@@ -1,0 +1,18 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\b marble_plugin
+
+<!-- 
+This plugin shows your geo position on a map. 
+The MarbleWidget is used as base widget.
+
+See http://edu.kde.org/marble/
+
+-->
+
+-->
+
+
+*/

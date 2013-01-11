@@ -1,0 +1,22 @@
+<package>
+  <description brief="marble plugin">
+
+     plugin to show a geo position on an map.
+     Marble is used as a widget base.
+
+  </description>
+
+  <author>Tobias Baer (baer@fzi.de)</author>
+  <license>BSD</license>
+
+  <depend package="rqt_gui"/>
+  <depend package="rqt_gui_cpp"/>
+  <depend package="sensor_msgs"/>
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
+
+</package>
+
+

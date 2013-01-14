@@ -9,7 +9,10 @@ The MarbleWidget is used as base widget.
 
 See http://edu.kde.org/marble/
 
-@TODO Center On GPS does not work as expected
-@TODO KML File remove
+@fixme Center on GPS does not work as expected
+@todo Make it possible to remove the kml file
+@todo Migrate to catkin
+@fixme setDistance does not work on reloading (wait for the next marble release)
+@todo ComboBox for the MarbleWidget projection method
 
 */

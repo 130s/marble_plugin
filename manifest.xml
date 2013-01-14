@@ -1,8 +1,9 @@
 <package>
   <description brief="marble plugin">
 
-     plugin to show a geo position on an map.
-     Marble is used as a widget base.
+     The marble_plugin shows a geo position on an map.
+     Marble is used as a widget base. The geo position 
+     has to by of the sensor_msgs::SatNavFix type.
 
   </description>
 

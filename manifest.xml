@@ -7,7 +7,7 @@
 
   </description>
 
-  <author>Tobias Baer (baer@fzi.de)</author>
+  <author>Tobias Bär (baer@fzi.de)</author>
   <license>BSD</license>
 
   <depend package="rqt_gui"/>

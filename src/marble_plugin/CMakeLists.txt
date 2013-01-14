@@ -1,4 +1,7 @@
 find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+
+SET( CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};/usr/share/kde4/apps/cmake/modules/" )
+
 find_package(Marble REQUIRED)
 
 include(${QT_USE_FILE})
@@ -23,8 +26,9 @@ set(marble_plugin_INCLUDE_DIRECTORIES
 qt4_wrap_cpp(marble_plugin_MOCS ${marble_plugin_HDRS})
 qt4_wrap_ui(marble_plugin_UIS_H ${marble_plugin_UIS})
 
-rosbuild_include(pluginlib hide_plugin_symbols)
-pluginlib_hide_plugin_symbols(marble_plugin MarblePlugin)
+# @TODO: Not required?
+# rosbuild_include(pluginlib hide_plugin_symbols)
+# pluginlib_hide_plugin_symbols(marble_plugin MarblePlugin)
 
 include_directories(marble_plugin ${marble_plugin_INCLUDE_DIRECTORIES} ${MARBLE_INCLUDE_DIR} )
 rosbuild_add_library(marble_plugin ${marble_plugin_SRCS} ${marble_plugin_MOCS} ${marble_plugin_UIS_H})

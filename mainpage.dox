@@ -4,15 +4,12 @@
 
 \b marble_plugin
 
-<!-- 
 This plugin shows your geo position on a map. 
 The MarbleWidget is used as base widget.
 
 See http://edu.kde.org/marble/
 
--->
-
--->
-
+@TODO Center On GPS does not work as expected
+@TODO KML File remove
 
 */

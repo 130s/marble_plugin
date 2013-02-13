@@ -22,7 +22,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 //----------------------------------------------------------------------
 /*!\file
 *
-* \author  Tobias Bär <baer@fzi.de>
+* \author  Tobias Bär <baer@fzi.de> Jan Aidel <aiden@fzi.de>
 * \date    2013-01-11
 *
 */
@@ -49,6 +49,8 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #include <marble/MapThemeManager.h>
 #include <marble/GeoPainter.h>
 
+#include <ros/package.h>
+
 // @TODO: setDistance does not work on reloading
 // @TODO: ComboBox for the MarbleWidget projection method
 // @TOOD: Draw icon on the current gps pos (MarbleWidget needs to be subclassed (custom paint))
@@ -73,28 +75,31 @@ void MarblePlugin::initPlugin(qt_gui_cpp::PluginContext& context)
 
   // add widget to the user interface
   ui_.setupUi( widget_ );
-
   ui_.MarbleWidget->setMapThemeId("earth/openstreetmap/openstreetmap.dgml");
-
   ui_.MarbleWidget->setProjection( Marble::Mercator );
-
   ui_.MarbleWidget->centerOn( 115.87164 , -31.93452 , false );  // My Happy Place: The Scotto
-
   ui_.MarbleWidget->setDistance(0.05);
 
   context.addWidget(widget_);
-
   ui_.comboBox_theme->setModel( ui_.MarbleWidget->model()->mapThemeManager()->mapThemeModel() );
 
 
+  //set refresh icon
+  QIcon refresh_icon;
+  std::string path = ros::package::getPath("marble_plugin")+"/etc/refresh.png";
+  QString icon_path(path.c_str());
+  refresh_icon.addFile(icon_path);
+  ui_.refreshButton->setIcon(refresh_icon);
+
+  FindGPSTopics();
+
   // Connections
+  connect(ui_.comboBox, SIGNAL(activated (const QString &)), this, SLOT (ChangeGPSTopic(const QString &)));
+  connect(ui_.refreshButton, SIGNAL(clicked()), this, SLOT(FindGPSTopics()));
 
   connect( this , SIGNAL(NewGPSPosition(qreal,qreal)) , ui_.MarbleWidget , SLOT(centerOn(qreal,qreal)) );
-
-  connect( ui_.lineEdit_topic , SIGNAL(editingFinished()) , this , SLOT( ChangeGPSTopic()) );
-
+//  connect( ui_.lineEdit_topic , SIGNAL(editingFinished()) , this , SLOT( ChangeGPSTopic()) );
   connect( ui_.lineEdit_kml , SIGNAL(returnPressed()) , this, SLOT( SetKMLFile() ));
-
   connect( ui_.comboBox_theme , SIGNAL(currentIndexChanged(int)) , this , SLOT(ChangeMarbleModelTheme(int)));
 
   // AutoNavigation Connections ... soon
@@ -109,10 +114,28 @@ void MarblePlugin::initPlugin(qt_gui_cpp::PluginContext& context)
                        ui_.MarbleWidget, SLOT( centerOn( const GeoDataCoordinates & ) ) );
 
   connect( ui_.MarbleWidget , SIGNAL( visibleLatLonAltBoxChanged() ),
-                       m_autoNavigation, SLOT( inhibitAutoAdjustments() ) );
+                        m_autoNavigation, SLOT( inhibitAutoAdjustments() ) );
     */
 }
 
+void MarblePlugin::FindGPSTopics()
+{
+    using namespace ros::master;
+    std::vector<TopicInfo> topic_infos;
+    getTopics(topic_infos);
+
+    ui_.comboBox->clear();
+    for(std::vector<TopicInfo>::iterator it=topic_infos.begin(); it!=topic_infos.end();it++)
+    {
+        TopicInfo topic = (TopicInfo)(*it);
+        if(topic.datatype.compare("sensor_msgs/NavSatFix")==0)
+        {
+//            std::cout << "found " << topic.name << std::endl;
+            QString lineEdit_string(topic.name.c_str());
+            ui_.comboBox->addItem(lineEdit_string);
+        }
+    }
+}
 
 void MarblePlugin::shutdownPlugin()
 {
@@ -129,12 +152,11 @@ void MarblePlugin::ChangeMarbleModelTheme(int idx )
     ui_.MarbleWidget->setMapThemeId( theme );
 }
 
-void MarblePlugin::ChangeGPSTopic()
+void MarblePlugin::ChangeGPSTopic(const QString &topic_name)
 {
     m_sat_nav_fix_subscriber.shutdown();
-
     m_sat_nav_fix_subscriber = getNodeHandle().subscribe< sensor_msgs::NavSatFix >(
-                ui_.lineEdit_topic->text().toStdString().c_str() , 10 , &MarblePlugin::GpsCallback , this );
+                topic_name.toStdString().c_str() , 10 , &MarblePlugin::GpsCallback, this );
 }
 
 void MarblePlugin::SetKMLFile( bool envoke_file_dialog )
@@ -190,25 +212,26 @@ void MarblePlugin::GpsCallback( const sensor_msgs::NavSatFixConstPtr& gpspt )
 void MarblePlugin::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::Settings& instance_settings) const
 {
   // save intrinsic configuration, usually using:
-  instance_settings.setValue( "marble_plugin_topic" , ui_.lineEdit_topic->text() );
-  instance_settings.setValue( "marble_plugin_kml_file" , ui_.lineEdit_kml->text().replace("." , "___dot_replacement___" ) );
-  instance_settings.setValue( "marble_plugin_zoom" , ui_.MarbleWidget->distance() );
-  instance_settings.setValue( "marble_theme_index" , ui_.comboBox_theme->currentIndex() );
-  instance_settings.setValue( "marble_center" , ui_.checkBox_center->isChecked() );
+    QString topic(m_sat_nav_fix_subscriber.getTopic().c_str());
+    instance_settings.setValue( "marble_plugin_topic", topic );
+    instance_settings.setValue( "marble_plugin_kml_file" , ui_.lineEdit_kml->text().replace("." , "___dot_replacement___" ) );
+    instance_settings.setValue( "marble_plugin_zoom" , ui_.MarbleWidget->distance() );
+    instance_settings.setValue( "marble_theme_index" , ui_.comboBox_theme->currentIndex() );
+    instance_settings.setValue( "marble_center" , ui_.checkBox_center->isChecked() );
 }
 
 void MarblePlugin::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
 {
   // restore intrinsic configuration, usually using:
-    ui_.lineEdit_topic->setText( instance_settings.value("marble_plugin_topic", "").toString() );
-    ui_.lineEdit_kml->setText( instance_settings.value("marble_plugin_kml_file" , "" ).toString().replace("___dot_replacement___",".") );
-  ui_.comboBox_theme->setCurrentIndex( instance_settings.value( "marble_theme_index" , 0 ).toInt() );
-  ui_.checkBox_center->setChecked( instance_settings.value( "marble_center" , true ).toBool());
+    const QString topic = instance_settings.value("marble_plugin_topic").toString();
+    ChangeGPSTopic(topic);
 
+    ui_.lineEdit_kml->setText( instance_settings.value("marble_plugin_kml_file" , "" ).toString().replace("___dot_replacement___",".") );
+    ui_.comboBox_theme->setCurrentIndex( instance_settings.value( "marble_theme_index" , 0 ).toInt() );
+    ui_.checkBox_center->setChecked( instance_settings.value( "marble_center" , true ).toBool());
 
   // std::cout << "Set distance " << instance_settings.value( "marble_plugin_zoom" ).toReal() << std::endl;
 
-  ChangeGPSTopic();
   SetKMLFile(false);
 
   // @TODO: Does not work since the KML loading changes the zoom

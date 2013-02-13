@@ -15,55 +15,15 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>GPS Topic</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lineEdit_topic">
-       <property name="text">
-        <string>/gps</string>
-       </property>
-      </widget>
-     </item>
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="3">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Map Theme</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QComboBox" name="comboBox_theme"/>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>KML File:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lineEdit_kml"/>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
+     <item row="2" column="4">
       <widget class="QCheckBox" name="checkBox_center">
        <property name="text">
         <string>Center On GPS Positon</string>
@@ -73,10 +33,47 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="refreshButton">
+       <property name="text">
+        <string>refresh</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>GPS Topic</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>KML File:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineEdit_kml"/>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="removeKMLButton">
+       <property name="text">
+        <string>remove</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QComboBox" name="comboBox_theme"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="comboBox"/>
+     </item>
     </layout>
    </item>
    <item>
-    <widget class="Marble::MarbleWidget" name="MarbleWidget">
+    <widget class="Marble::MarbleWidget" name="MarbleWidget" native="true">
      <property name="toolTip">
       <string>The Earth</string>
      </property>

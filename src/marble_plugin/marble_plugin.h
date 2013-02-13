@@ -72,11 +72,10 @@ Q_SIGNALS:
 
   private Q_SLOTS:
 
-  void ChangeGPSTopic();
-
-  void SetKMLFile(bool envoke_file_dialog = true );
-
-  void ChangeMarbleModelTheme(int idx );
+      void ChangeGPSTopic(const QString &topic_name);
+      void SetKMLFile(bool envoke_file_dialog = true );
+      void ChangeMarbleModelTheme(int idx );
+      void FindGPSTopics();
 
   private:
 
